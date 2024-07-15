@@ -12,6 +12,7 @@ import (
 	"github.com/gleich/logoru"
 
 	"github.com/mddn41/go-stargate-bridger/core"
+	"github.com/mddn41/go-stargate-bridger/core/chains"
 )
 
 var (
@@ -39,11 +40,11 @@ var StargateQuoteResult struct {
 }
 
 var stargateContractAddresses = map[*big.Int]common.Address{
-	core.ArbitrumChain.ChainId: common.HexToAddress("0xA45B5130f36CDcA45667738e2a258AB09f4A5f7F"),
-	core.OptimismChain.ChainId: common.HexToAddress("0xe8CDF27AcD73a434D661C84887215F7598e7d0d3"),
-	core.BaseChain.ChainId:     common.HexToAddress("0xdc181Bd607330aeeBEF6ea62e03e5e1Fb4B6F7C7"),
-	core.LineaChain.ChainId:    common.HexToAddress("0x81F6138153d473E8c5EcebD3DC8Cd4903506B075"),
-	core.ScrollChain.ChainId:   common.HexToAddress("0xC2b638Cb5042c1B3c5d5C969361fB50569840583"),
+	chains.ArbitrumChain.ChainId: common.HexToAddress("0xA45B5130f36CDcA45667738e2a258AB09f4A5f7F"),
+	chains.OptimismChain.ChainId: common.HexToAddress("0xe8CDF27AcD73a434D661C84887215F7598e7d0d3"),
+	chains.BaseChain.ChainId:     common.HexToAddress("0xdc181Bd607330aeeBEF6ea62e03e5e1Fb4B6F7C7"),
+	chains.LineaChain.ChainId:    common.HexToAddress("0x81F6138153d473E8c5EcebD3DC8Cd4903506B075"),
+	chains.ScrollChain.ChainId:   common.HexToAddress("0xC2b638Cb5042c1B3c5d5C969361fB50569840583"),
 }
 
 type StargateBridge struct {
@@ -66,13 +67,14 @@ func Stargate(client *core.EvmClient) *StargateBridge {
 func (dapp *StargateBridge) getMessageFee(dstChainLzId int, amount *big.Int, mode []byte) (*StargateMessagingFee, error) {
 	data, _ := dapp.abi.Pack("quoteSend", &StargateSendParam{
 		uint32(dstChainLzId),
-		core.AddressToBytes32(dapp.client.Address),
+		core.AddressToBytes32(*dapp.client.Address),
 		amount,
 		core.ApplySlippage(amount, 0.005),
 		[]byte{},
 		[]byte{},
 		mode,
 	}, false)
+
 	res, err := dapp.client.Provider.CallContract(context.Background(), ethereum.CallMsg{
 		To:   &dapp.contractAddress,
 		Data: data,
@@ -108,7 +110,7 @@ func (dapp *StargateBridge) EstimateAmountBeforeFees(dstChainLzId int, amount *b
 
 	sendParam := &StargateSendParam{
 		uint32(dstChainLzId),
-		core.AddressToBytes32(dapp.client.Address),
+		core.AddressToBytes32(*dapp.client.Address),
 		simulationValue,
 		core.ApplySlippage(simulationValue, 0.005),
 		[]byte{},
@@ -138,7 +140,7 @@ func (dapp *StargateBridge) EstimateAmountBeforeFees(dstChainLzId int, amount *b
 	return finalAmount.Sub(finalAmount, txGasFees), nil
 }
 
-func (dapp *StargateBridge) Bridge(dstChain core.Chain, amount *big.Int, mode []byte, includeFees bool) bool {
+func (dapp *StargateBridge) Bridge(dstChain chains.Chain, amount *big.Int, mode []byte, includeFees bool) bool {
 	if amount == nil || includeFees {
 		estimatedAmount, err := dapp.EstimateAmountBeforeFees(dstChain.LzEid, amount, mode)
 		if err != nil {
@@ -159,7 +161,7 @@ func (dapp *StargateBridge) Bridge(dstChain core.Chain, amount *big.Int, mode []
 
 	sendParam := &StargateSendParam{
 		uint32(dstChain.LzEid),
-		core.AddressToBytes32(dapp.client.Address),
+		core.AddressToBytes32(*dapp.client.Address),
 		amount,
 		core.ApplySlippage(amount, 0.005),
 		[]byte{},

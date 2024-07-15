@@ -15,6 +15,7 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/gleich/logoru"
+	"github.com/mddn41/go-stargate-bridger/core/chains"
 )
 
 var eip1559rewardPercentiles [5]float64 = [5]float64{10, 30, 50, 70, 90}
@@ -33,13 +34,17 @@ type TxParams struct {
 type EvmClient struct {
 	Provider   *ethclient.Client
 	privateKey *ecdsa.PrivateKey
-	Address    common.Address
-	Chain      Chain
+	Address    *common.Address
+	Chain      *chains.Chain
 }
 
-func NewClient(privateKey string, chain Chain) (*EvmClient, error) {
+func NewClient(privateKey string, chain *chains.Chain) (*EvmClient, error) {
 	privateKey = strings.TrimPrefix(privateKey, "0x")
-	provider, err := ethclient.Dial(chain.rpc)
+
+	if chain == nil {
+		chain = chains.MainnetChain
+	}
+	provider, err := ethclient.Dial(chain.RPC)
 
 	if err != nil {
 		return nil, err
@@ -56,7 +61,9 @@ func NewClient(privateKey string, chain Chain) (*EvmClient, error) {
 	if !ok {
 		return nil, err
 	}
-	return &EvmClient{privateKey: pk, Provider: provider, Address: crypto.PubkeyToAddress(*publicKeyECDSA), Chain: chain}, nil
+
+	address := crypto.PubkeyToAddress(*publicKeyECDSA)
+	return &EvmClient{privateKey: pk, Provider: provider, Address: &address, Chain: chain}, nil
 }
 
 func (c *EvmClient) EstimateTransaction(params *TxParams) (uint64, error) {
@@ -73,7 +80,7 @@ func (c *EvmClient) EstimateTransaction(params *TxParams) (uint64, error) {
 }
 
 func (c *EvmClient) BuildTransaction(params *TxParams) (*types.Transaction, error) {
-	nonce, err := c.Provider.PendingNonceAt(context.Background(), c.Address)
+	nonce, err := c.Provider.PendingNonceAt(context.Background(), *c.Address)
 	if err != nil {
 		return nil, err
 	}
@@ -84,7 +91,7 @@ func (c *EvmClient) BuildTransaction(params *TxParams) (*types.Transaction, erro
 		return nil, err
 	}
 
-	if c.Chain.eip1559 {
+	if c.Chain.ERIP1559 {
 		eip1559Params := getEIP1559Params(c.Provider)
 
 		return types.NewTx(&types.DynamicFeeTx{
@@ -155,7 +162,7 @@ func (c *EvmClient) VerifyTransaction(txHash common.Hash) bool {
 	}
 
 	if receipt.Status == 1 {
-		logoru.Success(fmt.Sprintf("Transaction was successfull: %stx/%s", c.Chain.explorer, txHash.Hex()))
+		logoru.Success(fmt.Sprintf("Transaction was successfull: %stx/%s", c.Chain.Explorer, txHash.Hex()))
 		return true
 	}
 	logoru.Error(fmt.Sprintf("Transaction failed: %s", txHash.Hex()))
@@ -163,9 +170,9 @@ func (c *EvmClient) VerifyTransaction(txHash common.Hash) bool {
 }
 
 func (c *EvmClient) GetNativeBalance() (*big.Int, error) {
-	bal, err := c.Provider.BalanceAt(context.Background(), c.Address, nil)
+	bal, err := c.Provider.BalanceAt(context.Background(), *c.Address, nil)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get native balance: %s", err)
+		return nil, fmt.Errorf("failed to get native balance of %s: %s", c.Address.Hex(), err)
 	}
 	return bal, nil
 }
