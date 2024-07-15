@@ -35,7 +35,6 @@ func main() {
 	case 2:
 		modules.BridgeBatch()
 	default:
-		core.Sleep([2]int{10, 20})
 		logoru.Error("Invalid module number")
 	}
 }
