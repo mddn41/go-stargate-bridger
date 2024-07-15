@@ -8,24 +8,24 @@ AfterFailDelayRange = [5, 10]
 
 # The source chain for bridges
 # Possible values: "Arbitrum", "Optimism", "Base", "Linea", "Scroll"
-SrcChain = "Scroll"
+SrcChain = ""
 
 # The destination chain for bridges
 # Possible values are the same as for SrcChain
-DstChain = "Optimism"
+DstChain = ""
 
 # Bridge mode ("BUS"/"TAXI")
 StargateBridgeMode = "BUS"
 
 # Percentage of ETH balance that will be used as bridge amount
 # Ignored if UseFullBridge = true
-BalancePercentageToBridge = [30, 50]
+BalancePercentageToBridge = [70, 80]
 
 # If true, picked bridge amount will include all fees (true/false)
 IncludeFees = false
 
 # If true, script will try to bridge whole ETH balance (true/false)
-UseFullBridge = true
+UseFullBridge = false
 
 [RpcEndpoints]
 

@@ -1,6 +1,10 @@
 package chains
 
-import "math/big"
+import (
+	"math/big"
+
+	"github.com/mddn41/go-stargate-bridger/config"
+)
 
 var MainnetChain = &Chain{
 	Name:       "ERC20",
@@ -8,7 +12,7 @@ var MainnetChain = &Chain{
 	CoinSymbol: "ETH",
 	Explorer:   "https://etherscan.io/",
 	ERIP1559:   true,
-	RPC:        "https://rpc.ankr.com/eth",
+	RPC:        config.RpcEndpoints["ERC20"],
 }
 
 var ArbitrumChain = &Chain{
@@ -17,7 +21,7 @@ var ArbitrumChain = &Chain{
 	CoinSymbol: "ETH",
 	Explorer:   "https://arbiscan.io/",
 	ERIP1559:   true,
-	RPC:        "https://rpc.ankr.com/arbitrum",
+	RPC:        config.RpcEndpoints["Arbitrum"],
 	LzEid:      30110,
 }
 
@@ -27,7 +31,7 @@ var OptimismChain = &Chain{
 	CoinSymbol: "ETH",
 	Explorer:   "https://optimistic.etherscan.io/",
 	ERIP1559:   true,
-	RPC:        "https://rpc.ankr.com/optimism",
+	RPC:        config.RpcEndpoints["Optimism"],
 	LzEid:      30111,
 }
 
@@ -37,7 +41,7 @@ var BaseChain = &Chain{
 	CoinSymbol: "ETH",
 	Explorer:   "https://basescan.org/",
 	ERIP1559:   true,
-	RPC:        "https://rpc.ankr.com/base",
+	RPC:        config.RpcEndpoints["Base"],
 	LzEid:      30184,
 }
 
@@ -47,7 +51,7 @@ var LineaChain = &Chain{
 	CoinSymbol: "ETH",
 	Explorer:   "https://lineascan.build/",
 	ERIP1559:   true,
-	RPC:        "https://rpc.linea.build/",
+	RPC:        config.RpcEndpoints["Linea"],
 	LzEid:      30183,
 }
 
@@ -57,6 +61,6 @@ var ScrollChain = &Chain{
 	CoinSymbol: "ETH",
 	Explorer:   "https://scrollscan.com/",
 	ERIP1559:   true,
-	RPC:        "https://rpc.ankr.com/scroll",
+	RPC:        config.RpcEndpoints["Scroll"],
 	LzEid:      30214,
 }

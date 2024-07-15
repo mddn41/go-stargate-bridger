@@ -15,19 +15,20 @@ type generalSettings struct {
 	UseFullBridge             bool
 }
 
-type config struct {
+var config struct {
 	GeneralSettings generalSettings
 	RpcEndpoints    map[string]string
 }
 
 var UserConfig generalSettings
+var RpcEndpoints map[string]string
 
 func init() {
-	config := &config{}
 	_, err := toml.DecodeFile("config.toml", &config)
 
 	if err != nil {
 		panic(err)
 	}
 	UserConfig = config.GeneralSettings
+	RpcEndpoints = config.RpcEndpoints
 }

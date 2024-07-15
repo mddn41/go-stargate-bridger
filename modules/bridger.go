@@ -32,7 +32,8 @@ func BridgeBatch() {
 		client, err := wallet.ToClient(chains.ChainByName(wallet.SrcChain))
 
 		if err != nil {
-			logoru.Error(err)
+			logoru.Error(fmt.Sprintf("Error while initializing client: %s", err))
+			core.Sleep(config.UserConfig.AfterFailDelayRange)
 			continue
 		}
 

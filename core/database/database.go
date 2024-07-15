@@ -100,7 +100,6 @@ func (db *JsonDatabase) WalletsLeft() int {
 }
 
 func (db *JsonDatabase) getActiveWallets() []*Wallet {
-	fmt.Println(db.Data[0])
 	var activeWallets []*Wallet
 	for _, w := range db.Data {
 		if !w.BridgeSent {
